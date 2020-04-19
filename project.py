@@ -9,19 +9,7 @@ import json
 
 import urllib.request
 import requests
-engine = db.create_engine('mysql://root:12345678@project.cvemnhulbj6l.us-east-1.rds.amazonaws.com:3306/forum', echo=True)
-connection = engine.connect()
-metadata = db.MetaData()
-app = Flask(__name__)
-
-app.secret_key = "1231231231233"
-from flask_wtf  import Form
-from wtforms import TextField, PasswordField,TextAreaField
-from wtforms.validators import  Required, EqualTo, \
-    Length, ValidationError
 import mysql.connector
-from mysql.connector import Error
-
 mydb = mysql.connector.connect(
   host="project.cvemnhulbj6l.us-east-1.rds.amazonaws.com",
   port="3306",
@@ -30,14 +18,21 @@ mydb = mysql.connector.connect(
   database="forum"
 )
 
+engine = db.create_engine('mysql://root:12345678@project.cvemnhulbj6l.us-east-1.rds.amazonaws.com:3306/forum', echo=True)
+
+connection = engine.connect()
+metadata = db.MetaData()
+app = Flask(__name__)
+
+app.secret_key = "asdlkasjdklasjdl"
+from flask_wtf  import Form
+from wtforms import TextField,TextAreaField
+from wtforms.validators import  Required
+import mysql.connector
 
 
-class ReplyForm(Form):
-    content = TextAreaField("Reply", validators=[Required()])
 
-class NewTopicForm(Form):
-    subject = TextField("Subject", validators=[Required()])
-    content = TextAreaField("Claim", validators=[Required()])
+
 
 def query_db(query, args=(), one=False):
     mycursor = mydb.cursor()
@@ -52,27 +47,6 @@ def query_db(query, args=(), one=False):
 def format_datetime(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d @ %I:%M %p')
 
-def format_elapsed_datetime(times):
-    seconds = int(time()) - int(times)
-    minutes = seconds / 60
-    hours = minutes / 60
-    days = hours / 24
-    if days > 1:
-        return "%i days ago" % days
-    elif days == 1:
-        return "1 day ago"
-    elif hours > 1:
-        return "%i hours ago" % hours
-    elif hours == 1:
-        return "1 hour ago"
-    elif minutes > 1:
-        return "%i minutes ago" % minutes
-    elif minutes == 1:
-        return "1 minute ago"
-    elif seconds > 1:
-        return "%i seconds ago" % seconds
-    else:
-        return "1 second ago"
 @app.route('/')
 def home():
     if not session.get('logged_in'):
@@ -90,8 +64,7 @@ def before_request():
 @app.route('/topics')
 def topics():
     # get a list of topics sorted by the date of their last reply
-    topics = query_db("SELECT * FROM topic ORDER BY (SELECT MAX(time) FROM \
-            claim WHERE claim.topic_id = topic.topic_id) DESC")
+    topics = query_db("SELECT * FROM topic ORDER BY topic_id DESC")
     print(topics)
     for topic in topics:
         # get number of replies to topic
@@ -105,9 +78,7 @@ def topics():
     api = 'c3e2e2cfca1d4f75f45c4044f2273343'
     url='http://api.openweathermap.org/data/2.5/weather?q=london&appid=' + api
     source = requests.get(url)
-    list_of_data = json.loads(source.content.decode())
-    print(str(list_of_data['main']['temp']) + 'k')
-        
+    list_of_data = json.loads(source.content.decode())        
     return render_template("topics.html", topics=topics,temp=str(list_of_data['main']['temp']) + 'k')
 
 @app.route('/logout', methods=['POST'])
@@ -137,8 +108,27 @@ def login():
             return  redirect("/topics")
     return render_template('login.html', error=error)
 
-app.jinja_env.filters['datetimeformat'] = format_datetime
-app.jinja_env.filters['datetimeelapsedformat'] = format_elapsed_datetime
+def format_elapsed_datetime(times):
+    seconds = int(time()) - int(times)
+    minutes = seconds / 60
+    hours = minutes / 60
+    days = hours / 24
+    if days > 1:
+        return "%i days ago" % days
+    elif days == 1:
+        return "1 day ago"
+    elif hours > 1:
+        return "%i hours ago" % hours
+    elif hours == 1:
+        return "1 hour ago"
+    elif minutes > 1:
+        return "%i minutes ago" % minutes
+    elif minutes == 1:
+        return "1 minute ago"
+    elif seconds > 1:
+        return "%i seconds ago" % seconds
+    else:
+        return "1 second ago"
 
 @app.route('/topic/new', methods=['GET', 'POST'])
 def new_topic():
@@ -153,15 +143,11 @@ def view_topic(topic_id):
     # view or post to a topic
     subject = query_db("SELECT subject FROM topic WHERE topic_id = "+ 
             topic_id, one=True)
-    if subject is None:
-        abort(404)
     subject = subject["subject"]
     
     form = ReplyForm()
     if form.validate_on_submit():
-        # need to be logged in
-        if not g.username:
-            abort(403)
+
         post_reply(topic_id, form.content.data)
     
     replies = query_db("SELECT * FROM claim WHERE topic_id = "+topic_id+" ORDER BY time")
@@ -183,6 +169,14 @@ def post_reply(topic_id, content):
     query="INSERT INTO claim (topic_id, time, content, author) values ('"+topic_id+"','"+str(int(time()))+"','"+content+"','"+g.username+ "')"
     mycursor.execute(query)
 
+app.jinja_env.filters['datetimeformat'] = format_datetime
+app.jinja_env.filters['datetimeelapsedformat'] = format_elapsed_datetime
+class ReplyForm(Form):
+    content = TextAreaField("Reply", validators=[Required()])
+
+class NewTopicForm(Form):
+    subject = TextField("Subject", validators=[Required()])
+    content = TextAreaField("Claim", validators=[Required()])
 if __name__=="__main__":
 
     app.run(debug=False,threaded=True,host='0.0.0.0')
