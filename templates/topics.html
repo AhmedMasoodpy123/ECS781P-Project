@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>My Forum- Topics</title>
+<link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1>My Forum</h1>
+<ul>
+{% if g.username %}
+<li>
+<form name="input" action="/logout" method="post">
+Logged in as {{ g.username }}.
+<input name="csrf_token" type="hidden" value="TODO">
+<input type="submit" value="Logout" />
+</form>
+</li>
+{% endif %}
+<li><a href="/">Topics</a></li>
+{% if not g.username %}
+<li><a href="/login">Login</a></li>
+<li><a href="/register">Register</a></li>
+{% endif %}
+</ul>
+</div>
+<div id="main">
+
+
+<div id="temp">
+Local temperature of London right now is {{temp}}
+
+</div>
+<h1>Topics</h1>
+
+<a href="/topic/new">Post new topic</a>
+{% if topics %}
+<div id="topic-list">
+<ul>
+{% for topic in topics %}
+<li>
+<a href="/topic/{{ topic["topic_id"] }}">{{ topic["subject"] }}</a>
+ - {{ topic["replies"] }} 
+{% if topic["replies"] != 1 %} replies {% else %} reply {% endif %}
+<p class="updated-date">{{ topic["last_reply_date"]|datetimeelapsedformat }}</p>
+</li>
+{% endfor %}
+</ul>
+</div>
+{% else %}
+<p>There doesn't seem to be any topics!</p>
+{% endif %}
+
+<h1>{{ page_name }}</h1>
+{{ page_body }}
+</div>
+
+</body>
+</html>
