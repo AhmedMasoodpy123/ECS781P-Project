@@ -15,11 +15,12 @@ For the topics table, one utilises a select method to abstract the topic id and 
 Within the login method, it firsts the checks the posted username against usernames and passwords within the database login. If the usernames match the database, the database login sends the relevant password and hashkey associated with the username to the SQL server. To check if the password entered by the user and the password accessed from the database match, the application utilising a hash based authentication. The advantage of hash functions that they cannot be decrypted even if the hacker has the hash key or has access to the database, as the hacker will not be able to access the users password, meaning that they are very secure. For hash based authentication, the application will take the password that the user has inputed and the hashkey abstracted from the database, and encrypt them. If the encryption matches what is found in the original database, then the user will be let into the page.
 
 
-## Create a virtual environment which will act as a source for all libraries of python
+**Create a virtual environment which will act as a source for all libraries of python**
 
-  virtualenv flask-forum
-  source flask-forum/bin/activate
-
+'''
+virtualenv flask-forum
+source flask-forum/bin/activate
+'''
 
 In order to install the pre-requisites run the following command:
 
