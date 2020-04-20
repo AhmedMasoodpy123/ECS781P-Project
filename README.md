@@ -101,7 +101,7 @@ This will configure a nginx server which can be started by command
 ```
 sudo service nginx start
 ```
-And allows to use a domain ip to access the server.
+This allows one to use a domain ip to access the server.
 
 Once we have this we need to configure kuberntes and use scaling.
 
