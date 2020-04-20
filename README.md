@@ -79,11 +79,12 @@ server {
     }
 }
 ```
-This will configure nginx and inorder to add the python environment, we use the following script to create a script in the system.
+This will configure nginx and inorder to add the python environment to nginx, we use the following script to create a script in  systemd:
 
 [Unit]
 Description=uWSGI instance to serve project
 After=network.target
+
 [Service]
 User=ubuntu
 Group=www-data
@@ -96,19 +97,19 @@ WantedBy=multi-user.target
 
 
 This will configure a nginx server which can be started by command
-
+```
 sudo service nginx start
-
+```
 And allows to use a domain ip to access the server.
 
 Once we have this we need to configure kuberntes and use scaling.
 
 The commands are as follows:
-
+```
 microk8s.kubectl create deployment project --instance=nginx
-
+```
 This will create a deployment and to use load balancer run the following command.
-
+```
 microk8s.kubectl expose deployment/project --type="LoadBalancer" --port 80
 
 microk8s.kubectl get pods
@@ -120,5 +121,31 @@ kubectl describe services/project
 kubectl get services -l run=nginx
 
 kubectl scale deployment project --replicas=5
-
+```
 This will create 5 replicas and use load balancer.
+
+As mentioned earlier, hash based authentication is one of the security measures for logging in. The following code is implemented for the login:
+
+```
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        login = db.Table('login', metadata, autoload=True, autoload_with=engine)
+        query=db.select([login]).where(login.columns.username == request.form['username'] )
+        queryexec = connection.execute(query)
+        is_login = queryexec.fetchall()        
+        #Take the hashkey and password from form and encrypt again
+        pw_hash = hashpw(request.form['password'].encode('utf-8'),is_login[0][3].encode('utf-8') )
+        #If encrypted and that in Db match load page
+        if pw_hash!=is_login[0][2].encode('utf-8'):
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            session["username"] = is_login[0][1] 
+            session['logged_in'] = True
+
+            session['is_login']='success'
+            return  redirect("/topics")
+    return render_template('login.html', error=error)
+```
+
