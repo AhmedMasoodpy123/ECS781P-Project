@@ -2,7 +2,7 @@
 ## Discussion Forum that also provides the local temperature for London.
 
 The application utilises a GET method to get the temperature from the public api but can only access this information with access to a private key.
-
+      
 The code from mydb establishes a connection to the rds db through mysql which allows the user to post into the relevant tables found in rds. Once we have established the connection, one can use SQL to query how to access posts and replies. One table is a topic table that includes the subject of the topic and the other table is a reply that needs to be linked with topic through use of the topic id as a primary key in the topic table and a foreign key in this reply table. One first gets the topics and orders them by topic id.
 
 There are two commands within the page in regards to topic. The first command allows one can post a new topic which allows one to create a new topic form (see def new_topic) where one can define the subject and content. This utlises an SQL INSERT command to insert the topic subject and content into the topic table which is automatically assigned a topic_id. The topic_id is a dynamic variable which depends on the most recent topic posted.
