@@ -81,6 +81,7 @@ server {
 ```
 This will configure nginx and inorder to add the python environment to nginx, we use the following script to create a script in  systemd:
 
+```
 [Unit]
 Description=uWSGI instance to serve project
 After=network.target
@@ -94,7 +95,7 @@ ExecStart=/home/ubuntu/.local/bin/uwsgi --ini project.ini
 
 [Install]
 WantedBy=multi-user.target
-
+```
 
 This will configure a nginx server which can be started by command
 ```
