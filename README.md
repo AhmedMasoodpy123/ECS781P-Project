@@ -17,21 +17,21 @@ Within the login method, it firsts the checks the posted username against userna
 
 **Create a virtual environment which will act as a source for all libraries of python**
 
-'''
+```
 virtualenv flask-forum
 source flask-forum/bin/activate
-'''
+```
 
 In order to install the pre-requisites run the following command:
-
+```
 pip3 install -r requirements.txt
-
+```
 
 This will add all the packages to your local virtual environment.
 
 Before we can run it we need to execute mysql script for which RDS AWS service was used.
 
-
+```
 DROP TABLE IF EXISTS `login`;
 CREATE TABLE IF NOT EXISTS `login` (
   `id` int(11) NOT NULL,
@@ -59,17 +59,17 @@ CREATE TABLE IF NOT EXISTS `claim` (
   `topic_id` int(11) NOT NULL,
   PRIMARY KEY (`claim_id`)
 )
-
+```
 Change the mysql credentials in project.py
 
 Now in order to run the server you can use the following command:
-
+```
 python project.py
-
+```
 This will start the server at default 5000 port and you can test.
 
 In order to use WSGI file listening at port project.sock inside project.ini file and use an nginx server the following configuration of nginx is required:
-
+```
 server {
     listen 80;
     server_name 35.153.70.175;
@@ -78,9 +78,8 @@ server {
         uwsgi_pass unix:/home/ubuntu/project/project.sock;
     }
 }
-
-This will configure nginx and inorder to add the python environment we use the following script to create a script in systemd
-
+```
+This will configure nginx and inorder to add the python environment we use the following script to create a script in the system
 
 [Unit]
 Description=uWSGI instance to serve project
@@ -94,7 +93,6 @@ ExecStart=/home/ubuntu/.local/bin/uwsgi --ini project.ini
 
 [Install]
 WantedBy=multi-user.target
-
 
 
 This will configure a nginx server which can be started by command
