@@ -64,7 +64,7 @@ Change the mysql credentials in project.py
 
 Now in order to run the server you can use the following command:
 ```
-python project.py
+python3 project.py
 ```
 This will start the server at default 5000 port and you can test.
 
@@ -79,7 +79,7 @@ server {
     }
 }
 ```
-This will configure nginx and inorder to add the python environment we use the following script to create a script in the system
+This will configure nginx and inorder to add the python environment, we use the following script to create a script in the system.
 
 [Unit]
 Description=uWSGI instance to serve project
