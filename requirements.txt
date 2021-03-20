@@ -13,7 +13,7 @@ Flask-WTF==0.14.3
 hibagent==1.0.1
 idna==2.0
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 jsonpatch==1.10
 jsonpointer==1.9
 language-selector==0.1
